@@ -1,0 +1,1 @@
+To jest opis aplikacji <i>Płytoteki</i>
