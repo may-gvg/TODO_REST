@@ -26,6 +26,8 @@ def todos_list():
 @app.route("/todos/<int:todo_id>/", methods=["GET", "POST"])
 def todo_details(todo_id):
     todo = todos.get(todo_id)
+    if not todo:
+        abort(404)
     form = TodoForm(data=todo)
     if request.method == "POST":
         if form.validate_on_submit():
@@ -56,12 +58,14 @@ def get_todo(todo_id):
 def create_todo():
     if not request.json or not 'title' in request.json:
         abort(400)
-    newid = todos.newid()
+    newid = todos.new_id()
+    tf = request.json['done']
+
     todo = {
         'id': newid,
         'title': request.json['title'],
-        'description': request.json.get('description', ""),
-        'done': False
+        'description': request.json['description'],
+        'done': tf
     }
     todos.create(todo, newid)
     return jsonify({'todo': todo}), 201
@@ -69,9 +73,10 @@ def create_todo():
 
 @app.route("/api/v1/todos/<int:todo_id>", methods=['DELETE'])
 def delete_todo(todo_id):
-    result = todos.delete(todo_id)
-    if not result:
+    if not todos.get(todo_id):
         abort(404)
+    result = todos.delete(todo_id)
+
     return jsonify({'result': result})
 
 
@@ -90,7 +95,7 @@ def update_todo(todo_id):
     ]):
         abort(400)
     todo = {
-        id: todo_id,
+        'id': todo_id,
         'title': data.get('title', todo['title']),
         'description': data.get('description', todo['description']),
         'done': data.get('done', todo['done'])
