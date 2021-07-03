@@ -47,8 +47,6 @@ def todos_list_api_v1():
 @app.route("/api/v1/todos/<int:todo_id>", methods=["GET"])
 def get_todo(todo_id):
     todo = todos.get(todo_id)
-    # dump(todo_id)
-    print(str(todo))
     if not todo:
         abort(404)
     return jsonify({"todo": todo})
@@ -56,7 +54,7 @@ def get_todo(todo_id):
 
 @app.route("/api/v1/todos/", methods=["POST"])
 def create_todo():
-    if not request.json or not 'title' in request.json:
+    if not request.json or 'title' not in request.json:
         abort(400)
     newid = todos.new_id()
     tf = request.json['done']
